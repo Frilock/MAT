@@ -3,8 +3,8 @@
 # среднюю задержку E[D]. Также произвести теоретический расчет двух данных величин.
 # среднее число сообщений в очереди, используя формулу Литла
 import matplotlib.pyplot as plot
-import random
 import numpy as np
+import random
 import math
 
 
@@ -62,29 +62,26 @@ def system(buffer_size, count_message):
     average_size_array = []
 
     for intensity in lambda_array:
-        time = 0
         buffer = []
         count_sent_message = 0  # количество обработанных заявок
         count_window = 0  # номер окна
         delay = 0  # задержка
         average_size = 0  # среднее количество заявок в системе
-        count_request = 0  # заявок сгенерировано
 
         while count_sent_message != count_message:
-            count_window += 1
-            while time <= count_window:
-                count_request += 1
-                time += np.random.poisson(1 / intensity)
-                # time += random.expovariate(intensity)
-                if len(buffer) <= buffer_size and time <= count_window:
-                    buffer.append(time)
+            time = random.expovariate(intensity)
+            while time < 1:
+                if len(buffer) < buffer_size:
+                    buffer.append(count_window)
+                time += random.expovariate(intensity)
 
-            if len(buffer) != 0:
+            if len(buffer) != 0 and buffer[0] != count_window:
                 in_time = buffer.pop()
-                out_time = count_window + 1
+                out_time = count_window
                 delay += (out_time - in_time)
                 count_sent_message += 1
 
+            count_window += 1
             average_size += len(buffer)
 
         average_size /= count_sent_message
@@ -108,10 +105,9 @@ def system(buffer_size, count_message):
 
 def main():
     buffer_size = 10  # размер очереди
-    count_message = 1000  # количество заявок
+    count_message = 100000  # количество заявок
 
     system(buffer_size, count_message)
-    # theoretical_markov_chain(buffer_size)
 
 
 main()
