@@ -10,15 +10,14 @@ import math
 
 def theoretical_markov_chain(buffer_size):
     matrix_size = buffer_size + 1
-    lambda_array = np.arange(0.1, 1.1, 0.1)
+    lambda_array = np.arange(0.1, 2.1, 0.1)
     theoretic_average_size_array = []
     theoretic_delay_array = []
 
     for intensity in lambda_array:
-        matrix = [[0] * matrix_size] * matrix_size
-        matrix = np.asarray(matrix, dtype=float)
+        matrix = np.zeros((matrix_size, matrix_size), dtype=float)
 
-        for i in range(0, matrix_size - 1):  # заполняем первую строчку, кроме последнего элемента
+        for i in range(0, matrix_size - 1):  # заполняем первую и вторую строчку, кроме последнего элемента
             matrix[0, i] = matrix[1, i] = math.pow(intensity, i) * np.exp(-intensity) / math.factorial(i)
         matrix[0, matrix_size - 1] = 1 - sum(matrix[0])
         matrix[1, matrix_size - 2] = 0
@@ -28,25 +27,22 @@ def theoretical_markov_chain(buffer_size):
             for j in range(i - 1, matrix_size - 2):
                 matrix[i, j] = math.pow(intensity, index) * np.exp(-intensity) / math.factorial(index)
                 index += 1
-
-        for i in range(1, matrix_size):
             matrix[i, matrix_size - 2] = 1 - sum(matrix[i])
-
-        matrix[matrix_size - 1, matrix_size - 2] = 1
-
-        for i in range(0, matrix_size):
-            matrix[i, i] -= 1
+        matrix[matrix_size - 1][matrix_size - 2] = 1
 
         matrix = np.transpose(matrix)
-        matrix[matrix_size - 1] = np.array([1] * matrix_size)
+
+        for i in range(0, matrix_size):
+            matrix[i, i] -= 1  # из диагонали вычитаем еденицы
+            matrix[-1][i] = 1  # нижнюю строчку еденицами
 
         vector = np.array([0] * (buffer_size + 1))
         vector[buffer_size] = 1
 
-        matrix_temp = np.linalg.solve(matrix, vector)
+        matrix_temp = np.linalg.solve(matrix, vector)  # matrix_temp = Pi
 
         temp_average = 0
-        for j in range(0, len(matrix_temp)):
+        for j in range(0, matrix_size):
             temp_average += j * matrix_temp[j]
         theoretic_average_size_array.append(temp_average)
 
@@ -57,7 +53,7 @@ def theoretical_markov_chain(buffer_size):
 
 
 def system(buffer_size, count_message):
-    lambda_array = np.arange(0.1, 1.1, 0.1)
+    lambda_array = np.arange(0.1, 2.1, 0.1)
     delay_array = []
     average_size_array = []
 
@@ -76,7 +72,7 @@ def system(buffer_size, count_message):
                 time += random.expovariate(intensity)
 
             if len(buffer) != 0 and buffer[0] != count_window:
-                in_time = buffer.pop()
+                in_time = buffer.pop(0)
                 out_time = count_window
                 delay += (out_time - in_time)
                 count_sent_message += 1
@@ -105,7 +101,7 @@ def system(buffer_size, count_message):
 
 def main():
     buffer_size = 10  # размер очереди
-    count_message = 100000  # количество заявок
+    count_message = 10000  # количество заявок
 
     system(buffer_size, count_message)
 
