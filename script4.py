@@ -10,7 +10,7 @@ import math
 
 def theoretical_markov_chain(buffer_size):
     matrix_size = buffer_size + 1
-    lambda_array = np.arange(0.1, 2.1, 0.1)
+    lambda_array = np.arange(0.1, 1.1, 0.1)
     theoretic_average_size_array = []
     theoretic_delay_array = []
 
@@ -40,6 +40,7 @@ def theoretical_markov_chain(buffer_size):
         vector[buffer_size] = 1
 
         matrix_temp = np.linalg.solve(matrix, vector)  # matrix_temp = Pi
+        print(matrix_temp)
 
         temp_average = 0
         for j in range(0, matrix_size):
@@ -53,7 +54,7 @@ def theoretical_markov_chain(buffer_size):
 
 
 def system(buffer_size, count_message):
-    lambda_array = np.arange(0.1, 2.1, 0.1)
+    lambda_array = np.arange(0.1, 1.1, 0.1)
     delay_array = []
     average_size_array = []
 
@@ -100,7 +101,7 @@ def system(buffer_size, count_message):
 
 
 def main():
-    buffer_size = 10  # размер очереди
+    buffer_size = 11  # размер очереди
     count_message = 10000  # количество заявок
 
     system(buffer_size, count_message)
